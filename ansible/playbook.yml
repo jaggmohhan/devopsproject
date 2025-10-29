@@ -1,0 +1,41 @@
+---
+- name: Deploy Bus Booking App on Minikube
+  hosts: local
+  become: false
+  tasks:
+
+    - name: Check kubectl availability
+      command: kubectl version --client
+      register: kubectl_check
+      ignore_errors: yes
+
+    - name: Fail if kubectl not found
+      fail:
+        msg: "kubectl is not installed or not configured for Minikube."
+      when: kubectl_check.rc != 0
+
+    - name: Apply Deployment
+      command: kubectl apply -f ../k8s/deployment.yaml
+      args:
+        chdir: "{{ playbook_dir }}"
+
+    - name: Apply Service
+      command: kubectl apply -f ../k8s/service.yaml
+      args:
+        chdir: "{{ playbook_dir }}"
+
+    - name: Wait for deployment to be ready
+      command: kubectl rollout status deployment/bus-booking-deployment
+      register: rollout_status
+      retries: 5
+      delay: 5
+      until: rollout_status.rc == 0
+
+    - name: Get service URL from Minikube
+      command: minikube service bus-booking-service --url
+      register: service_url
+      changed_when: false
+
+    - name: Display service URL
+      debug:
+        msg: "Application is available at: {{ service_url.stdout }}"
