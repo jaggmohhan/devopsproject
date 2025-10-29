@@ -16,6 +16,7 @@ spec:
     spec:
       containers:
         - name: bus-booking
-          image: docker.io/urk22cs1170/bus-booking:latest
+          image: docker.io/urk22cs1170/bus-booking:latest   # ✅ your correct Docker Hub image
+          imagePullPolicy: Always                           # ✅ ensures new image is always pulled
           ports:
             - containerPort: 5000
