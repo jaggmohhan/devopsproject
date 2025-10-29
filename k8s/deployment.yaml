@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - name: bus-booking
-          image: docker.io/paal2004/bus-booking:latest
+          image: docker.io/urk22cs1170/bus-booking:latest
           imagePullPolicy: Always
           ports:
             - containerPort: 5000
