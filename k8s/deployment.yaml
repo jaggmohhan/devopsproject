@@ -16,7 +16,48 @@ spec:
     spec:
       containers:
         - name: bus-booking
-          image: docker.io/urk22cs1170/bus-booking:latest   # ✅ your correct Docker Hub image
-          imagePullPolicy: Always                           # ✅ ensures new image is always pulled
+          image: docker.io/urk22cs1170/bus-booking:latest
+          imagePullPolicy: Always
           ports:
             - containerPort: 5000
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "100m"
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
+          env:
+            - name: PORT
+              value: "5000"
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 5000
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 5
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 5000
+            initialDelaySeconds: 10
+            periodSeconds: 5
+            timeoutSeconds: 3
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: bus-booking-service
+  labels:
+    app: bus-booking
+spec:
+  type: LoadBalancer
+  selector:
+    app: bus-booking
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 5000
+      name: http
